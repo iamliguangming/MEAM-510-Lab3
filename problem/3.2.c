@@ -10,42 +10,36 @@
 
 void adc_setup(int ADCchannel);
 void adc_read();
-static int adcout=0;
 
-int adc1 = 12;
-int adc2 = 11;
-int adc;
 int main(void)
 {
   m_usb_init();
   set(ADMUX,REFS0);
-  teensy_clockdivide(0);
   set(ADCSRA,ADPS0);
   set(ADCSRA,ADPS1);
   set(ADCSRA,ADPS2);
+
+  teensy_clockdivide(0);
   set(DDRC,6);
   set(TCCR3B,CS30);
   set(TCCR3B,CS32);
   set(TCCR3A,WGM30);
   set(TCCR3B,WGM32);
   set(TCCR3A,COM3A1);
-  adc = adc1;
-
 
   for(;;)
   {
-    adc_setup(adc);
+    // OCR3A = 40-(adc_read()*(40-7))/1024;
+    // m_usb_tx_uint(OCR3A);
+    // _delay_ms(1000);
+    adc_setup(12);
     adc_read();
-    // if (adc == adc1)
-    // {
-    //   adc = adc2;
-    // }
-    // else if(adc == adc2)
-    // {
-    //   adc = adc1;
-    // }
-     OCR3A = 40-(adcout*(40-7))/1024;
 
+
+    OCR3A = 7;
+    _delay_ms(1000);
+    OCR3A = 40;
+    _delay_ms(1000);
   }
 
 
@@ -162,11 +156,8 @@ void adc_read()
   if (bit_is_set(ADCSRA,ADIF))
   {
     set(ADCSRA,ADIF);
-    m_usb_tx_string("\nADC");
-    m_usb_tx_uint(adc);
-    m_usb_tx_string("=");
+    m_usb_tx_string("\nADC=");
     m_usb_tx_uint(ADC*5/1.024);
-    adcout= ADC;
     m_usb_tx_string("mV");
   }
 }

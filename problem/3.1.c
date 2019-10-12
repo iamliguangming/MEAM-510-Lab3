@@ -10,10 +10,9 @@
 
 void adc_setup(int ADCchannel);
 void adc_read();
-static int adcout=0;
 
-int adc1 = 12;
-int adc2 = 11;
+int adc1 = 11;
+int adc2 = 12;
 int adc;
 int main(void)
 {
@@ -23,12 +22,6 @@ int main(void)
   set(ADCSRA,ADPS0);
   set(ADCSRA,ADPS1);
   set(ADCSRA,ADPS2);
-  set(DDRC,6);
-  set(TCCR3B,CS30);
-  set(TCCR3B,CS32);
-  set(TCCR3A,WGM30);
-  set(TCCR3B,WGM32);
-  set(TCCR3A,COM3A1);
   adc = adc1;
 
 
@@ -36,16 +29,14 @@ int main(void)
   {
     adc_setup(adc);
     adc_read();
-    // if (adc == adc1)
-    // {
-    //   adc = adc2;
-    // }
-    // else if(adc == adc2)
-    // {
-    //   adc = adc1;
-    // }
-     OCR3A = 40-(adcout*(40-7))/1024;
-
+    if (adc == adc1)
+    {
+      adc = adc2;
+    }
+    else if(adc == adc2)
+    {
+      adc = adc1;
+    }
   }
 
 
@@ -53,7 +44,6 @@ int main(void)
 }
 void adc_setup(int ADCchannel)
 {
-
   if (ADCchannel == 1)
   {
     set(DIDR0,ADC1D);
@@ -166,7 +156,6 @@ void adc_read()
     m_usb_tx_uint(adc);
     m_usb_tx_string("=");
     m_usb_tx_uint(ADC*5/1.024);
-    adcout= ADC;
     m_usb_tx_string("mV");
   }
 }
